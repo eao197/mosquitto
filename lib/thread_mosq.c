@@ -87,6 +87,9 @@ void *_mosquitto_thread_main(void *obj)
 		pthread_mutex_unlock(&mosq->state_mutex);
 	}
 
+//NOTE: this approach could lead to frequent disconnects if
+//client is only listening messages with QoS=0.
+#if 0
 	if(!mosq->keepalive){
 		/* Sleep for a day if keepalive disabled. */
 		mosquitto_loop_forever(mosq, 1000*86400, 1);
@@ -94,6 +97,9 @@ void *_mosquitto_thread_main(void *obj)
 		/* Sleep for our keepalive value. publish() etc. will wake us up. */
 		mosquitto_loop_forever(mosq, mosq->keepalive*1000, 1);
 	}
+#endif
+	// Will use the default timeout as workaround.
+	mosquitto_loop_forever(mosq, -1, 1);
 
 	return obj;
 }
